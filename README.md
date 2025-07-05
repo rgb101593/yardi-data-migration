@@ -1,99 +1,93 @@
-# Yardi Data Migration System
+# 🏢 Yardi Data Migration System
 
-
-&#x20;&#x20;
-
----
-
-> **Enterprise‑grade migration suite** for property management data into Yardi—featuring delta‑only processing, automated validations, safe production rollbacks, and reconciliation dashboards.
+> **A robust, professional solution for migrating property management data to Yardi platforms.** Supports a full migration lifecycle from CRP to production with validation, delta processing, rollback, and reconciliation.
 
 ---
 
-## 🌐 Table of Contents
+## 📑 Overview
 
-1. [⚙️ Overview](#%EF%B8%8F-overview)
-2. [🚀 Key Features](#%EF%B8%8F-key-features)
-3. [📦 Prerequisites & Installation](#%EF%B8%8F-prerequisites--installation)
-4. [📂 Project Structure](#%EF%B8%8F-project-structure)
-5. [🏁 Quick Start](#%EF%B8%8F-quick-start)
-6. [🔍 Core Components](#%EF%B8%8F-core-components)
-7. [💡 Best Practices](#%EF%B8%8F-best-practices)
-8. [🛠 Support & Troubleshooting](#%EF%B8%8F-support--troubleshooting)
-9. [📜 License & Version](#%EF%B8%8F-license--version)
+* **Three-Phase Migration:** CRP → UAT → Production
+* **Delta Processing:** Migrate only changed records
+* **Validation Framework:** Quality checks at every stage
+* **Production Safety:** Rollback system & dual confirmation
+* **Encoding Detection:** Handles various file formats
+* **Reconciliation Reports:** Ensure data integrity
 
 ---
 
-## ⚙️ Overview
+## ⚙️ Prerequisites
 
-This system orchestrates a **three‑phase migration**—CRP ➡️ UAT ➡️ Production—for Yardi platforms. Highlights include:
-
-* **Delta Processing** (migrate only changed records)
-* **Validation Framework** (configurable rule sets)
-* **Safety Mechanisms** (dual confirmations & automatic rollback)
-* **Reconciliation Reporting** (end‑to‑end data integrity checks)
-
----
-
-## 🚀 Key Features
-
-| Feature                   | Description                                                 |
-| ------------------------- | ----------------------------------------------------------- |
-| 🔄 **Delta‑Only**         | Detect & migrate only new/updated records                   |
-| ✅ **Validation Rules**    | Enforce data quality via YAML‑driven checks                 |
-| 🔒 **Production Safety**  | Two‑step confirmations, pre‑checks, and rollback on failure |
-| 📑 **Reconciliation**     | Auto‑generated reports to verify end‑state integrity        |
-| 🌐 **Encoding Detection** | Auto‑detect & handle diverse file encodings                 |
-
----
-
-## 📦 Prerequisites & Installation
-
-* **Python**: 3.9 or higher
-* **Dependencies**: `pandas`, `pyyaml`, `chardet`
-
-```bash
-git clone https://github.com/your-org/yardi-data-migration.git
-cd yardi-data-migration
-pip install -r requirements.txt  # pandas, pyyaml, chardet
-```
-
+* Python **3.9+**
+* Packages: see requirements.txt
 ---
 
 ## 📂 Project Structure
 
 ```bash
-yardi-data-migration/
-├── config/                # Phase‑specific YAML configs
+yardi_data_migration/
+├── config/
 │   ├── dm1_crp.yaml
 │   ├── dm2_uat.yaml
 │   └── dm3_prod.yaml
-├── data/                  # Storage: sources, backups, reports
-│   ├── sources/
+├── data/
 │   ├── backups/
+│   ├── reconciliation/
 │   ├── reports/
-│   └── reconciliation/
-├── src/                   # Core modules & utilities
+│   ├── sources/
+│   └── yardi_etl/
+├── src/
 │   ├── delta_processor.py
 │   ├── extraction.py
+│   ├── orchestration.py
 │   ├── transformation.py
 │   ├── validation.py
-│   ├── orchestration.py
-│   └── rollback.py
-├── run_dm1.py             # CRP phase runner
-├── run_dm2.py             # UAT phase runner
-├── run_dm3.py             # Production runner
+├── run_dm1.py
+├── run_dm2.py
+├── run_dm3.py
 └── requirements.txt
 ```
 
 ---
 
-## 🏁 Quick Start
+## 🔄 Execution Workflow
 
-### 1. Configure Phases
+```mermaid
+graph TD
+  A[Start Migration] --> B{Select Phase}
+  B -->|DM1| C[Process Representative Data]
+  B -->|DM2| D[Create Backup] --> E[Process Full Dataset]
+  B -->|DM3| F[Confirm Production] --> G[Pre-Migration Checks] --> D
 
-Create or edit `config/<phase>.yaml`:
+  C --> H[Extract]
+  E --> H
+  H --> I[Transform]
+  I --> J[Validate]
+  J -->|Valid| K[Generate Yardi Files]
+  J -->|Invalid| L[Log Errors]
+  K --> M[Reconciliation]
+
+  M --> N{More Modules?}
+  N -->|Yes| H
+  N -->|No| O{Phase Complete?}
+
+  O -->|DM1| P[Generate Reports]
+  O -->|DM2| P
+  O -->|DM3| Q[Finalize Migration]
+
+  P --> R[End]
+  Q --> R
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1️⃣ Configuration Setup
+
+Create YAML configs under `config/`:
 
 ```yaml
+# config/dm1_crp.yaml
 phase: dm1_crp
 modules: [leasing, ar, fixed_assets]
 
@@ -101,105 +95,114 @@ field_mappings:
   leasing:
     property_id: PropertyID
     lease_ref: LeaseReference
+    tenant_id: TenantID
+    lease_start: LeaseCommencementDate
 
 validation_rules:
   leasing:
-    required: [PropertyID, LeaseReference]
+    required: [PropertyID, LeaseReference, TenantID]
+    positive_values: [BaseRent]
 ```
 
-### 2. Organize Data
+### 2️⃣ Prepare Source Data
 
-```
-data/sources/
-├── dm1_crp/      # CRP (representative subset)
-│   └── leasing.csv
-├── dm2_uat/      # UAT (full dataset)
-└── dm3_prod/     # Production snapshot
-```
-
-### 3. Execute Migration
-
-| Phase | Command             | Prompt             |
-| ----- | ------------------- | ------------------ |
-| CRP   | `python run_dm1.py` | —                  |
-| UAT   | `python run_dm2.py` | —                  |
-| Prod  | `python run_dm3.py` | `PROD` → `CONFIRM` |
-
-> **Note:** Production requires two confirmations (`PROD`, then `CONFIRM`).
-
----
-
-## 🔍 Core Components
-
-### 1. Delta Processor
-
-```python
-# src/delta_processor.py
-def get_delta_records(module, config):
-    """
-    • Auto‑detect encoding
-    • Load current & reference data
-    • Hash compare to find new/changed rows
-    """
-```
-
-### 2. Transformation
-
-```python
-# src/transformation.py
-def transform_data(df, module, config):
-    """
-    • Map fields via YAML
-    • Handle dates, currencies, special cases
-    • Generate temp IDs
-    """
-```
-
-### 3. Validation
-
-```python
-# src/validation.py
-def validate_data(df, module, config):
-    """
-    • Required‑field checks
-    • Positive‑value enforcement
-    • Lookup mapping verifications
-    """
-```
-
-### 4. Rollback & Safety
-
-* **Pre‑checks:** file existence, disk space, config integrity
-* **Dual confirmation** for Prod
-* **Auto‑rollback** on failures with timestamped backups
-
----
-
-## 💡 Best Practices
-
-* **UTF‑8 (no BOM)** for source CSVs
-* **Schema consistency** across phases
-* **Off‑peak scheduling** for Prod migrations
-* **Stakeholder notifications** & **pre‑run backups**
-
----
-
-## 🛠 Support & Troubleshooting
-
-| Issue                    | Solution                                     |
-| ------------------------ | -------------------------------------------- |
-| `UnicodeDecodeError`     | Convert to UTF‑8 without BOM                 |
-| Missing source files     | Verify under `data/sources/<phase>/`         |
-| Validation rule failures | Check `config/<phase>.yaml:validation_rules` |
-| Rollback did not restore | Ensure backup timestamp exists & retry       |
-
-**Logs:** `data/reports/` contains `error_log.txt`, `production_errors.log`, and `validation_<ts>.md`
-
-**Manual rollback example:**
+Organize CSVs:
 
 ```bash
-python -c "from src.rollback import execute_rollback; \
-  execute_rollback('data/backups/dm3_prod_20250705_123456')"
+data/sources/
+├── dm1_crp/   # CRP: Representative
+├── dm2_uat/   # UAT: Full portfolio
+└── dm3_prod/  # Production: Final data
+```
+
+### 3️⃣ Run Migrations
+
+```bash
+# CRP
+python run_dm1.py
+
+# UAT
+python run_dm2.py
+
+# Production (requires confirmation)
+python run_dm3.py
+```
+
+👉 Confirm prompts: Type `PROD` and `CONFIRM` when prompted.
+
+---
+
+## 🔑 Key Components
+
+**Delta Processing**
+
+```python
+def get_delta_records(module, config):
+    # 1. Detect encoding
+    # 2. Load datasets
+    # 3. Compare hashes
+    # 4. Return new/changed rows
+```
+
+**Data Transformation**
+
+```python
+def transform_data(df, module, config):
+    # 1. Apply field mappings
+    # 2. Handle special cases
+    # 3. Generate temp IDs
+    # 4. Validate business rules
+```
+
+**Validation Framework**
+
+```python
+def validate_data(df, module, config):
+    # 1. Required fields
+    # 2. Positive values
+    # 3. Value mappings
+    # 4. Enforce business rules
+```
+
+**Production Safety Features**
+
+* Dual confirmation for production
+* Pre-migration checks (files, disk space, config integrity)
+* Automatic rollback on critical errors
+* Error notifications for production failures
+
+---
+
+## ✅ Best Practices
+
+* Use **UTF-8 without BOM**
+* Clean data before migration
+* Maintain consistent schemas
+* Schedule DM3 during off-peak hours
+* Verify backups and disk space before starting
+* Obtain stakeholder sign-off for production
+
+---
+
+## 🛠️ Support & Troubleshooting
+
+| Issue                | Solution                        |
+| -------------------- | ------------------------------- |
+| UnicodeDecodeError   | Use UTF-8 without BOM encoding  |
+| Missing source files | Verify files in `data/sources/` |
+| Validation failures  | Check `config/validation_rules` |
+| Rollback failure     | Ensure sufficient disk space    |
+
+**Log files:** `data/reports/`
+
+* `error_log.txt` — Detailed errors
+* `production_errors.log` — Production-specific
+* `validation_*.md` — Validation reports
+
+**Manual Rollback Example:**
+
+```bash
+python -c "from src.rollback import execute_rollback; execute_rollback('data/backups/dm3_prod_20250705_123456')"
 ```
 
 ---
@@ -209,6 +212,4 @@ python -c "from src.rollback import execute_rollback; \
 * **License:** MIT
 * **Version:** 1.0.0
 
----
-
-> *Crafted with precision for seamless Yardi migrations.*
+> *Reliable, safe, and professional data migration for Yardi.*

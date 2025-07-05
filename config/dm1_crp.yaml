@@ -1,0 +1,63 @@
+phase: dm1_crp
+modules: [leasing, ar, fixed_assets]
+properties: [PROP-001, PROP-002, PROP-003, PROP-004, PROP-005]
+
+field_mappings:
+  leasing:
+    property_id: PropertyID
+    lease_ref: LeaseReference
+    tenant_id: TenantID
+    lease_start: LeaseCommencementDate
+    lease_end: LeaseExpirationDate
+    base_rent: BaseRent
+    rent_freq: RentFrequency
+    security_deposit: SecurityDeposit
+    unit_number: UnitNumber
+    
+  ar:
+    property_id: PropertyID
+    tenant_id: TenantID
+    invoice_number: InvoiceNumber
+    invoice_date: InvoiceDate
+    due_date: DueDate
+    amount: Amount
+    status: Status
+    description: Description
+    
+  fixed_assets:
+    property_id: PropertyID
+    asset_id: AssetID
+    description: Description
+    acquisition_date: AcquisitionDate
+    original_cost: OriginalCost
+    depreciation_method: DepreciationMethod
+    useful_life: UsefulLife
+
+validation_rules:
+  leasing:
+    required: [PropertyID, LeaseReference, TenantID, LeaseCommencementDate, BaseRent]
+    date_ranges: 
+      - "LeaseCommencementDate < LeaseExpirationDate"
+    positive_values: [BaseRent, SecurityDeposit]
+    value_maps:
+      RentFrequency: 
+        Monthly: M
+        Quarterly: Q
+        Bi-weekly: BW
+        Weekly: W
+        Annually: A
+        
+  ar:
+    required: [PropertyID, InvoiceNumber, Amount]
+    positive_values: [Amount]
+    
+  fixed_assets:
+    required: [PropertyID, AssetID, OriginalCost]
+    positive_values: [OriginalCost]
+    value_maps:
+      DepreciationMethod:
+        "Straight Line": SL
+        "Double Declining": DD
+        "Declining Balance": DB
+        "Sum of Years": SY
+        "Units of Production": UP

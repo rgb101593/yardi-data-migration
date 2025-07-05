@@ -1,0 +1,102 @@
+# Yardi Data Migration Configuration - DM3 (Production Go-Live)
+phase: dm3_prod
+
+# Modules to process (full portfolio)
+modules: [leasing, ar, fixed_assets]
+
+# Field mappings (source -> Yardi)
+field_mappings:
+  leasing:
+    property_id: PropertyID
+    lease_ref: LeaseReference
+    tenant_id: TenantID
+    lease_start: LeaseCommencementDate
+    lease_end: LeaseExpirationDate
+    base_rent: BaseRent
+    rent_freq: RentFrequency
+    security_deposit: SecurityDeposit
+    unit_number: UnitNumber
+    
+  ar:
+    property_id: PropertyID
+    tenant_id: TenantID
+    invoice_number: InvoiceNumber
+    invoice_date: InvoiceDate
+    due_date: DueDate
+    amount: Amount
+    status: Status
+    description: Description
+    
+  fixed_assets:
+    property_id: PropertyID
+    asset_id: AssetID
+    description: Description
+    acquisition_date: AcquisitionDate
+    original_cost: OriginalCost
+    depreciation_method: DepreciationMethod
+    useful_life: UsefulLife
+
+# Stricter validation rules for production
+validation_rules:
+  leasing:
+    required: [PropertyID, LeaseReference, TenantID, LeaseCommencementDate, BaseRent]
+    date_ranges: 
+      - "LeaseCommencementDate < LeaseExpirationDate"
+    positive_values: [BaseRent, SecurityDeposit]
+    value_maps:
+      RentFrequency: 
+        Monthly: M
+        Quarterly: Q
+        Bi-weekly: BW
+        Weekly: W
+        Annually: A
+    business_rules:
+      - "BaseRent > 0"
+      - "LeaseCommencementDate <= CURRENT_DATE"
+      
+  ar:
+    required: [PropertyID, InvoiceNumber, Amount, InvoiceDate]
+    positive_values: [Amount]
+    date_ranges:
+      - "InvoiceDate <= DueDate"
+    business_rules:
+      - "Amount > 0"
+      - "Status IN ['Paid', 'Pending', 'Overdue']"
+    
+  fixed_assets:
+    required: [PropertyID, AssetID, OriginalCost, AcquisitionDate]
+    positive_values: [OriginalCost]
+    value_maps:
+      DepreciationMethod:
+        "Straight Line": SL
+        "Double Declining": DD
+        "Declining Balance": DB
+        "Sum of Years": SY
+        "Units of Production": UP
+    business_rules:
+      - "UsefulLife > 0"
+      - "AcquisitionDate <= CURRENT_DATE"
+
+# Delta processing settings
+delta_settings:
+  reference_phase: dm2_uat  # Compare against UAT phase
+  key_columns:
+    leasing: lease_ref
+    ar: invoice_number
+    fixed_assets: asset_id
+
+# Production-specific settings
+production:
+  final_validation: true
+  backup_retention_days: 30
+  cloud_backup: true  # Enable cloud backups
+
+# Yardi PRODUCTION environment
+yardi:
+  environment: PROD
+  import_format: csv
+  encoding: utf-16
+  delimiter: "|"
+  date_format: YYYYMMDD
+  # Credentials should be set as environment variables
+  # PROD_DB_USER, PROD_DB_PASSWORD, etc.

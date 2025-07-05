@@ -1,33 +1,59 @@
-Yardi Data Migration System
-Overview
+# Yardi Data Migration System
 
-A professional solution for migrating property management data to Yardi platforms. Handles full migration lifecycle from CRP to production with validation, error handling, and rollback capabilities.
-Key Features
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#license)  
+[![Python Version](https://img.shields.io/badge/python-3.9%2B-green.svg)](#prerequisites)
 
-    Three-Phase Migration: CRP → UAT → Production
+> A professional, end‑to‑end solution for migrating property‑management data into Yardi platforms—complete with validation, error handling, rollback support and reconciliation reporting.
 
-    Delta Processing: Migrate only changed records
+---
 
-    Production Safety: Rollback system & dual confirmation
+## 📋 Table of Contents
 
-    Validation Framework: Data quality checks at each stage
+1. [Overview](#overview)  
+2. [Key Features](#key-features)  
+3. [Prerequisites](#prerequisites)  
+4. [Installation](#installation)  
+5. [Project Structure](#project-structure)  
+6. [Usage](#usage)  
+   - [Configuration](#configuration)  
+   - [Prepare Source Data](#prepare-source-data)  
+   - [Run Migrations](#run-migrations)  
+7. [Core Components](#core-components)  
+8. [Best Practices](#best-practices)  
+9. [Support & Troubleshooting](#support--troubleshooting)  
+10. [License & Version](#license--version)  
 
-    Automatic Encoding Detection: Handles various file formats
+---
 
-    Reconciliation Reports: Data integrity verification
+## 📝 Overview
 
-Prerequisites
+The **Yardi Data Migration System** orchestrates a three‑phase migration process—from Conference Room Pilot (CRP), through User Acceptance Testing (UAT), to Production. It detects deltas, validates data, generates reconciliation reports, and safely handles production rollouts with dual confirmations and automatic rollback.
 
-    Python 3.9+
+---
 
-    Required packages: pandas, pyyaml, chardet
+## ✨ Key Features
 
-bash
+- **Three‑Phase Workflow**: CRP → UAT → Production  
+- **Delta Processing**: Efficiently migrate only new or changed records  
+- **Production Safety**: Two‑step confirmation + automatic rollback on failures  
+- **Validation Framework**: Configurable data‑quality checks at every stage  
+- **Auto Encoding Detection**: Seamless handling of diverse file encodings  
+- **Reconciliation Reports**: Verify data integrity after each run  
 
+---
+
+## 🔧 Prerequisites
+
+- **Python**: 3.9 or higher  
+- **Packages**:  
+  - `pandas`  
+  - `pyyaml`  
+  - `chardet`  
+
+```bash
 pip install pandas pyyaml chardet
 
-Project Structure
-text
+📁 Project Structure
 
 yardi_data_migration/
 ├── config/
@@ -46,20 +72,16 @@ yardi_data_migration/
 │   ├── orchestration.py
 │   ├── transformation.py
 │   ├── validation.py
-│   └── ...
+│   └── rollback.py
 ├── run_dm1.py
 ├── run_dm2.py
 ├── run_dm3.py
 └── requirements.txt
 
-Execution Workflow
-Diagram
-Code
-Getting Started
-1. Configuration Setup
+🚀 Usage
+1. Configuration
 
-Create YAML config files in config/ directory:
-yaml
+Create or update your YAML config files under config/:
 
 # config/dm1_crp.yaml
 phase: dm1_crp
@@ -79,165 +101,137 @@ validation_rules:
 
 2. Prepare Source Data
 
-Organize CSV files in the following structure:
-text
+Organize your CSVs here:
 
 data/sources/
-├── dm1_crp/          # CRP: Representative properties
+├── dm1_crp/      # CRP: smaller representative dataset
 │   ├── leasing.csv
 │   ├── ar.csv
 │   └── fixed_assets.csv
-├── dm2_uat/          # UAT: Full portfolio
-└── dm3_prod/         # Production: Final data
+├── dm2_uat/      # UAT: full portfolio
+└── dm3_prod/     # Production: final data snapshot
 
 3. Run Migrations
 
-Conference Room Pilot (CRP):
-bash
+CRP (DM1):
 
 python run_dm1.py
 
-User Acceptance Testing (UAT):
-bash
+UAT (DM2):
 
 python run_dm2.py
 
-Production Go-Live:
-bash
+Production (DM3):
 
 python run_dm3.py
 
-# Confirmation prompts:
-# Type 'PROD' to confirm production migration
-# Type 'CONFIRM' to proceed
+    Important Prompts
 
-Key Components
+        Type PROD to confirm production run
+
+        Type CONFIRM to proceed after safety checks
+
+🔍 Core Components
 Delta Processing
 
-    Identifies changed records since last migration
-
-    Uses stable hashing for accurate comparison
-
-    Automatic encoding detection for various file formats
+def get_delta_records(module, config):
+    """
+    1. Auto‑detect file encoding  
+    2. Load current & reference datasets  
+    3. Compare via stable hashing  
+    4. Return new/changed records
+    """
 
 Data Transformation
 
-    Converts source data to Yardi-compatible format
-
-    Handles special cases (dates, currencies, frequencies)
-
-    Generates temporary IDs where needed
+def transform_data(df, module, config):
+    """
+    1. Apply field mappings  
+    2. Handle dates, currencies, special cases  
+    3. Generate temporary IDs  
+    4. Validate business logic
+    """
 
 Validation Framework
 
-    Comprehensive data quality checks
+def validate_data(df, module, config):
+    """
+    1. Check required fields  
+    2. Ensure positive values  
+    3. Verify lookup‑mappings  
+    4. Enforce DM3‑specific rules
+    """
 
-    Required fields validation
+Production Safety
 
-    Positive value checks
+    Dual Confirmation for all Prod actions
 
-    Value mapping verification
+    Pre‑Migration Checks: file existence, disk space, config integrity
 
-    Business rule enforcement (DM3)
+    Automatic Rollback on errors
 
-Production Safety Features
+    Error Notifications to support team
 
-    Dual Confirmation: Two-step verification for production migration
-
-    Pre-Migration Checks:
-
-        Verify all source files exist
-
-        Check available disk space
-
-        Validate configuration integrity
-
-    Automatic Rollback: Restores pre-migration state on critical errors
-
-    Error Notifications: Alerts support team on production failures
-
-    Compressed Backups: ZIP format for efficient storage
-
-Best Practices
+📈 Best Practices
 Data Preparation
 
-    Use UTF-8 encoding without BOM
+    Save source files as UTF‑8 (no BOM)
 
-    Clean data before migration
+    Clean & standardize before running
 
-    Maintain consistent schemas across phases
-
-    Validate data quality before migration
+    Keep schemas consistent across phases
 
 Testing Strategy
 
-    DM1 (CRP):
+    DM1 (CRP)
 
-        Small representative dataset
+        Small sample set
 
-        Focus on transformation logic
+        Focus on transformation & validation
 
-        Resolve all validation errors
+    DM2 (UAT)
 
-    DM2 (UAT):
+        Full dataset in test environment
 
-        Full portfolio dataset
+        Validate reconciliation outputs
 
-        Test in UAT environment
+    DM3 (Production)
 
-        Verify reconciliation reports
+        Execute in maintenance window
 
-    DM3 (Production):
-
-        Final production snapshot
-
-        Execute during maintenance window
-
-        Obtain business sign-off before proceeding
+        Obtain business sign‑off
 
 Execution Planning
 
-    Schedule DM3 during off-peak hours
+    Schedule Prod runs off‑peak
 
-    Notify stakeholders before production migration
+    Notify stakeholders in advance
 
-    Verify backups before starting
+    Verify backups & monitor resources
 
-    Monitor system resources during migration
-
-Support & Troubleshooting
-Common Issues
+🛠 Support & Troubleshooting
 Issue	Solution
-UnicodeDecodeError	Use UTF-8 without BOM encoding
-Missing source files	Verify files exist in data/sources/
-Validation failures	Check config/validation_rules
-Rollback failure	Ensure sufficient disk space
-Log Files
+UnicodeDecodeError	Convert sources to UTF‑8 without BOM
+Missing source files	Ensure files exist under data/sources/
+Validation failures	Review config/validation_rules
+Rollback failures	Check disk space & backup file integrity
 
-Location: data/reports/
+Log Files:
 
-    error_log.txt - Detailed error traces
+    data/reports/error_log.txt
 
-    production_errors.log - Production-specific issues
+    data/reports/production_errors.log
 
-    validation_*.md - Validation reports
+    data/reports/validation_<timestamp>.md
 
-    critical_errors.log - Phase failure reports
+Manual Rollback:
 
-Recovery Process
+python -c "from src.rollback import execute_rollback; \
+execute_rollback('data/backups/dm3_prod_20250705_123456')"
+python run_dm3.py
 
-    Check error logs for root cause
+📜 License & Version
 
-    Fix data or configuration issues
+    License: MIT
 
-    Execute manual rollback if needed:
-
-bash
-
-python -c "from src.rollback import execute_rollback; execute_rollback('data/backups/dm3_prod_20250705_123456')"
-
-    Restart migration after fixes
-
-License: MIT
-Created By: rgb101593
-Version: 1.0.0
+    Current Version: 1.0.0

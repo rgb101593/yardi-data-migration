@@ -1,6 +1,6 @@
 # Yardi Data Migration System
 
-\
+
 &#x20;&#x20;
 
 ---
@@ -27,10 +27,10 @@
 
 This system orchestrates a **three‑phase migration**—CRP ➡️ UAT ➡️ Production—for Yardi platforms. Highlights include:
 
-- **Delta Processing** (migrate only changed records)
-- **Validation Framework** (configurable rule sets)
-- **Safety Mechanisms** (dual confirmations & automatic rollback)
-- **Reconciliation Reporting** (end‑to‑end data integrity checks)
+* **Delta Processing** (migrate only changed records)
+* **Validation Framework** (configurable rule sets)
+* **Safety Mechanisms** (dual confirmations & automatic rollback)
+* **Reconciliation Reporting** (end‑to‑end data integrity checks)
 
 ---
 
@@ -48,8 +48,8 @@ This system orchestrates a **three‑phase migration**—CRP ➡️ UAT ➡️ P
 
 ## 📦 Prerequisites & Installation
 
-- **Python**: 3.9 or higher
-- **Dependencies**: `pandas`, `pyyaml`, `chardet`
+* **Python**: 3.9 or higher
+* **Dependencies**: `pandas`, `pyyaml`, `chardet`
 
 ```bash
 git clone https://github.com/your-org/yardi-data-migration.git
@@ -169,18 +169,18 @@ def validate_data(df, module, config):
 
 ### 4. Rollback & Safety
 
-- **Pre‑checks:** file existence, disk space, config integrity
-- **Dual confirmation** for Prod
-- **Auto‑rollback** on failures with timestamped backups
+* **Pre‑checks:** file existence, disk space, config integrity
+* **Dual confirmation** for Prod
+* **Auto‑rollback** on failures with timestamped backups
 
 ---
 
 ## 💡 Best Practices
 
-- **UTF‑8 (no BOM)** for source CSVs
-- **Schema consistency** across phases
-- **Off‑peak scheduling** for Prod migrations
-- **Stakeholder notifications** & **pre‑run backups**
+* **UTF‑8 (no BOM)** for source CSVs
+* **Schema consistency** across phases
+* **Off‑peak scheduling** for Prod migrations
+* **Stakeholder notifications** & **pre‑run backups**
 
 ---
 
@@ -206,10 +206,9 @@ python -c "from src.rollback import execute_rollback; \
 
 ## 📜 License & Version
 
-- **License:** MIT
-- **Version:** 1.0.0
+* **License:** MIT
+* **Version:** 1.0.0
 
 ---
 
 > *Crafted with precision for seamless Yardi migrations.*
-

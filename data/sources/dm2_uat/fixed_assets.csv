@@ -1,0 +1,13 @@
+property_id,asset_id,description,acquisition_date,original_cost,depreciation_method,useful_life
+PROP-001,FA-10001,HVAC System,2020-07-15,25000.00,Straight Line,10
+PROP-002,FA-10002,Elevator,2018-11-30,180000.00,Straight Line,15
+PROP-003,FA-10003,Roofing,2019-05-20,120000.00,Straight Line,20
+PROP-004,FA-10004,Boiler System,2021-01-10,35000.00,Straight Line,10
+PROP-005,FA-10005,Fire Alarm System,2020-03-22,28000.00,Straight Line,10
+PROP-001,FA-10006,Lighting System,2022-02-18,15000.00,Double Declining,5
+PROP-002,FA-10007,Plumbing,2017-08-14,95000.00,Straight Line,15
+PROP-003,FA-10008,Flooring,2019-11-05,45000.00,Straight Line,10
+PROP-004,FA-10009,Windows,2020-09-12,60000.00,Straight Line,20
+PROP-005,FA-10010,Security System,2021-12-01,32000.00,Straight Line,7
+PROP-001,FA-10011,,2022-03-15,18000.00,Straight Line,8
+PROP-002,FA-10012,Parking Gates,2023-01-10,-22000.00,Straight Line,10
